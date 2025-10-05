@@ -9,7 +9,7 @@ interface TaskLists extends IBaseTableFields {
     userId: number
     listName: string
     listColor: string
-    tasks?: ITasks[]
+    tasks?: Tasks[]
 }
 
 interface Tasks extends IBaseTableFields {

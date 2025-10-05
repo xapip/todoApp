@@ -8,7 +8,7 @@ import { TaskListsModel } from "@lib/supabase/TaskListsModel"
 export async function GET(req: NextRequest) {
     const withTasks = req.nextUrl.searchParams.has("withTasks")
     const client = await createServerClient()
-    const taskListsModel = new TaskListsModel<ITaskLists & ITasks>(client)
+    const taskListsModel = new TaskListsModel<TaskLists & Tasks>(client)
 
     if (withTasks) {
         const taskListsWithTasks = await taskListsModel.getAllWithTasks()

@@ -2,7 +2,7 @@ import { SupabaseClient } from "@supabase/supabase-js"
 
 import { BaseModel } from "./BaseModel"
 
-export class TaskListsModel<T> extends BaseModel<ITaskLists> {
+export class TaskListsModel<T> extends BaseModel<TaskLists> {
     constructor(client: SupabaseClient) {
         super("taskLists", client)
     }
