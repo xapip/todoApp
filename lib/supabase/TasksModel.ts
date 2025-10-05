@@ -1,0 +1,9 @@
+import { SupabaseClient } from "@supabase/supabase-js"
+
+import { BaseModel } from "./BaseModel"
+
+export class TasksModel extends BaseModel<ITasks> {
+    constructor(client: SupabaseClient) {
+        super("tasks", client)
+    }
+}
