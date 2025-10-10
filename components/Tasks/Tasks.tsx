@@ -69,7 +69,11 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
 
     return (
         <div className="relative flex h-full flex-col overflow-y-scroll">
-            <Drawer open={openDrawer} onOpenChange={setOpenDrawer}>
+            <Drawer
+                open={openDrawer}
+                onOpenChange={setOpenDrawer}
+                repositionInputs={false}
+            >
                 <ul className="grow space-y-2">
                     {tasks?.map((item) => (
                         <li
@@ -135,7 +139,7 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
                         </Button>
                     </div>
                 </DrawerTrigger>
-                <DrawerContent>
+                <DrawerContent className="min-h-[70vh]">
                     <DrawerHeader>
                         <DrawerTitle>
                             {!!defaultValues.id

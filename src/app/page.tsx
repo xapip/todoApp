@@ -42,7 +42,7 @@ export default function Home() {
 
     return (
         <div className="flex h-full w-full flex-col space-y-3 overflow-hidden">
-            <Drawer>
+            <Drawer repositionInputs={false}>
                 <div className="space-y-5">
                     <header className="border-text-color/10 mx-5 mt-2.5 grid grid-cols-3 items-center justify-between border-b pt-0.5 pb-2">
                         <div className="">
