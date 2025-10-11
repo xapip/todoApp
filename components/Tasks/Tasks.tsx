@@ -14,6 +14,7 @@ import { useTasks } from "@src/hooks/useTasks"
 import { Label } from "@components/ui/label"
 import { Checkbox } from "@components/ui/checkbox"
 import { Pencil, Trash2 } from "lucide-react"
+// import { useTelegramViewport } from "@src/hooks/useTelegramViewport"
 
 type FormSchema = {
     title: string
@@ -28,13 +29,8 @@ type FormSchema = {
 export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
     const [openDrawer, setOpenDrawer] = useState(false)
     const [defaultValues, setDefaultValues] = useState<
-        FormSchema & { id?: number | undefined }
-    >({
-        id: undefined,
-        title: "",
-        content: "",
-        listId: 0,
-    })
+        (FormSchema & { id?: number | undefined }) | undefined
+    >(undefined)
     const { tasks, taskModel } = useTasks()
 
     async function onSubmit(values: FormSchema, currentId: number | undefined) {
@@ -45,8 +41,8 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
         }
     }
 
-    const handleDrawer = async (isUpdate: boolean, task: Task | undefined) => {
-        if (isUpdate) {
+    const handleDrawer = async (task?: Task | undefined) => {
+        if (task) {
             setDefaultValues({
                 title: task?.title ?? "",
                 content: task?.content,
@@ -54,7 +50,7 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
                 id: task?.id,
             })
         } else {
-            setDefaultValues({ title: "", content: "", listId: 0 })
+            setDefaultValues(undefined)
         }
         setOpenDrawer(true)
     }
@@ -68,12 +64,12 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
     }, [tasks])
 
     return (
-        <div className="relative flex h-full flex-col overflow-y-scroll">
-            <Drawer
-                open={openDrawer}
-                onOpenChange={setOpenDrawer}
-                repositionInputs={false}
-            >
+        <Drawer
+            open={openDrawer}
+            onOpenChange={setOpenDrawer}
+            repositionInputs={false}
+        >
+            <div className="relative overflow-y-scroll">
                 <ul className="grow space-y-2">
                     {tasks?.map((item) => (
                         <li
@@ -110,7 +106,7 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
                                 <div className="flex flex-row items-center gap-2">
                                     <Button
                                         id="toggle-delete-task"
-                                        onClick={() => handleDrawer(true, item)}
+                                        onClick={() => handleDrawer(item)}
                                     >
                                         <Pencil />
                                     </Button>
@@ -128,35 +124,35 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
                         </li>
                     ))}
                 </ul>
-                <DrawerTrigger asChild>
-                    <div className="fixed right-0 bottom-0 flex justify-end p-4">
-                        <Button
-                            size={"icon"}
-                            rounded={"full"}
-                            onClick={() => handleDrawer(false, undefined)}
-                        >
-                            +
-                        </Button>
-                    </div>
-                </DrawerTrigger>
-                <DrawerContent className="min-h-[70vh]">
-                    <DrawerHeader>
-                        <DrawerTitle>
-                            {!!defaultValues.id
-                                ? "Обновить задачу"
-                                : "Добавить задачу"}
-                        </DrawerTitle>
-                    </DrawerHeader>
-                    <TaskForm
-                        taskLists={taskLists}
-                        defaultValues={defaultValues}
-                        onSubmit={onSubmit}
-                    />
-                    <DrawerFooter>
-                        <DrawerClose>Закрыть</DrawerClose>
-                    </DrawerFooter>
-                </DrawerContent>
-            </Drawer>
-        </div>
+            </div>
+            <DrawerTrigger asChild>
+                <div className="fixed right-0 bottom-0 flex justify-end p-4">
+                    <Button
+                        size={"icon"}
+                        rounded={"full"}
+                        onClick={() => handleDrawer()}
+                    >
+                        +
+                    </Button>
+                </div>
+            </DrawerTrigger>
+            <DrawerContent>
+                <DrawerHeader>
+                    <DrawerTitle>
+                        {defaultValues && !!defaultValues.id
+                            ? "Обновить задачу"
+                            : "Добавить задачу"}
+                    </DrawerTitle>
+                </DrawerHeader>
+                <TaskForm
+                    taskLists={taskLists}
+                    defaultValues={defaultValues}
+                    onSubmit={onSubmit}
+                />
+                <DrawerFooter>
+                    <DrawerClose>Закрыть</DrawerClose>
+                </DrawerFooter>
+            </DrawerContent>
+        </Drawer>
     )
 }

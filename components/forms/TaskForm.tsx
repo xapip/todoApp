@@ -41,7 +41,9 @@ export function TaskForm({
     onSubmit,
 }: {
     taskLists: TaskLists[]
-    defaultValues: z.infer<typeof formSchema> & { id?: number | undefined }
+    defaultValues:
+        | (z.infer<typeof formSchema> & { id?: number | undefined })
+        | undefined
     onSubmit: (
         values: z.infer<typeof formSchema>,
         currentId: number | undefined
@@ -55,132 +57,146 @@ export function TaskForm({
 
     return (
         <Form {...form}>
-            <form
-                onSubmit={form.handleSubmit((e) =>
-                    onSubmit(e, defaultValues.id)
-                )}
-                className="flex flex-col items-center space-y-8"
-            >
-                <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                        <FormItem className="w-full max-w-[300px]">
-                            <FormLabel>Заголовок</FormLabel>
-                            <FormControl>
-                                <Input placeholder="глянуть кинцо" {...field} />
-                            </FormControl>
-                            <FormDescription>
-                                Что нужно сделать?
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
+            <div className="relative overflow-y-scroll">
+                <form
+                    onSubmit={form.handleSubmit((e) =>
+                        onSubmit(e, defaultValues?.id)
                     )}
-                />
-                <FormField
-                    control={form.control}
-                    name="content"
-                    render={({ field }) => (
-                        <FormItem className="w-full max-w-[300px]">
-                            <FormLabel>Описание</FormLabel>
-                            <FormControl>
-                                <Textarea
-                                    placeholder="глянуть кинцо, на компе, укутавшись в плед"
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormDescription>
-                                Немного подробностей
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="listId"
-                    render={({ field }) => (
-                        <FormItem className="flex w-full max-w-[300px] flex-col">
-                            <FormLabel>Имя списка</FormLabel>
-                            <Popover open={open} onOpenChange={setOpen}>
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            className={cn(
-                                                "justify-between",
-                                                !field.value &&
-                                                    "text-muted-foreground"
-                                            )}
-                                        >
-                                            {field.value
-                                                ? taskLists.find(
-                                                      (taskList) =>
-                                                          taskList.id ===
-                                                          field.value
-                                                  )?.listName
-                                                : "Выберите список"}
-                                            <ChevronsUpDown className="opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-full p-0">
-                                    <Command>
-                                        <CommandInput
-                                            placeholder="Поиск списков..."
-                                            className="h-9"
-                                        />
-                                        <CommandList>
-                                            <CommandEmpty>
-                                                Такого списка нет.
-                                            </CommandEmpty>
-                                            <CommandGroup>
-                                                {taskLists.map((taskList) => (
-                                                    <CommandItem
-                                                        value={
-                                                            taskList.listName
-                                                        }
-                                                        key={taskList.id}
-                                                        onSelect={() => {
-                                                            form.setValue(
-                                                                "listId",
-                                                                taskList.id,
-                                                                {
-                                                                    shouldValidate: true,
+                    className="flex flex-col items-center space-y-8"
+                >
+                    <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field }) => (
+                            <FormItem className="w-full max-w-[300px]">
+                                <FormLabel>Заголовок</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="глянуть кинцо"
+                                        type="text"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Что нужно сделать?
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="content"
+                        render={({ field }) => (
+                            <FormItem className="w-full max-w-[300px]">
+                                <FormLabel>Описание</FormLabel>
+                                <FormControl>
+                                    <Textarea
+                                        placeholder="глянуть кинцо, на компе, укутавшись в плед"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    Немного подробностей
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="listId"
+                        render={({ field }) => (
+                            <FormItem className="flex w-full max-w-[300px] flex-col">
+                                <FormLabel>Имя списка</FormLabel>
+                                <Popover open={open} onOpenChange={setOpen}>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                className={cn(
+                                                    "justify-between",
+                                                    !field.value &&
+                                                        "text-muted-foreground"
+                                                )}
+                                            >
+                                                {field.value
+                                                    ? taskLists.find(
+                                                          (taskList) =>
+                                                              taskList.id ===
+                                                              field.value
+                                                      )?.listName
+                                                    : "Выберите список"}
+                                                <ChevronsUpDown className="opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0">
+                                        <Command>
+                                            <CommandInput
+                                                placeholder="Поиск списков..."
+                                                className="h-9"
+                                            />
+                                            <CommandList>
+                                                <CommandEmpty>
+                                                    Такого списка нет.
+                                                </CommandEmpty>
+                                                <CommandGroup>
+                                                    {taskLists.map(
+                                                        (taskList) => (
+                                                            <CommandItem
+                                                                value={
+                                                                    taskList.listName
                                                                 }
-                                                            )
-                                                            setOpen(false)
-                                                        }}
-                                                    >
-                                                        {taskList.listName}
-                                                        <Check
-                                                            className={cn(
-                                                                "ml-auto",
-                                                                taskList.id ===
-                                                                    field.value
-                                                                    ? "opacity-100"
-                                                                    : "opacity-0"
-                                                            )}
-                                                        />
-                                                    </CommandItem>
-                                                ))}
-                                            </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                </PopoverContent>
-                            </Popover>
-                            <FormDescription>
-                                В какой список попадет ваше задание.
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <Button type="submit">
-                    {!!defaultValues.id ? "Обновить" : "Добавить"}
-                </Button>
-            </form>
+                                                                key={
+                                                                    taskList.id
+                                                                }
+                                                                onSelect={() => {
+                                                                    form.setValue(
+                                                                        "listId",
+                                                                        taskList.id,
+                                                                        {
+                                                                            shouldValidate: true,
+                                                                        }
+                                                                    )
+                                                                    setOpen(
+                                                                        false
+                                                                    )
+                                                                }}
+                                                            >
+                                                                {
+                                                                    taskList.listName
+                                                                }
+                                                                <Check
+                                                                    className={cn(
+                                                                        "ml-auto",
+                                                                        taskList.id ===
+                                                                            field.value
+                                                                            ? "opacity-100"
+                                                                            : "opacity-0"
+                                                                    )}
+                                                                />
+                                                            </CommandItem>
+                                                        )
+                                                    )}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <FormDescription>
+                                    В какой список попадет ваше задание.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <Button type="submit">
+                        {!!defaultValues?.id ? "Обновить" : "Добавить"}
+                    </Button>
+                </form>
+            </div>
         </Form>
     )
 }
