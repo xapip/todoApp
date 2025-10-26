@@ -31,7 +31,7 @@ type User = {
 type Task = {
     id: number
     title: string
-    content?: string
+    content: string
     isCompleted?: boolean
     dueDay?: Date | null
     listId: number

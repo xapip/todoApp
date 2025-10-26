@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Button } from "@components/ui/button"
+import { Button } from "@components/ui/shadcn/button"
 import {
     Drawer,
     DrawerClose,
@@ -8,17 +8,18 @@ import {
     DrawerHeader,
     DrawerTitle,
     DrawerTrigger,
-} from "@components/ui/drawer"
+} from "@components/ui/shadcn/drawer"
 import { TaskForm } from "@components/forms/TaskForm"
 import { useTasks } from "@src/hooks/useTasks"
-import { Label } from "@components/ui/label"
-import { Checkbox } from "@components/ui/checkbox"
-import { Pencil, Trash2 } from "lucide-react"
+import { Label } from "@components/ui/shadcn/label"
+import { Checkbox } from "@components/ui/shadcn/checkbox"
+import { Pencil } from "lucide-react"
+import { DeleteButton } from "@components/ui/deleteButton"
 // import { useTelegramViewport } from "@src/hooks/useTelegramViewport"
 
 type FormSchema = {
     title: string
-    content?: string
+    content: string
     listId: number
     isCompleted?: boolean
 }
@@ -29,8 +30,12 @@ type FormSchema = {
 export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
     const [openDrawer, setOpenDrawer] = useState(false)
     const [defaultValues, setDefaultValues] = useState<
-        (FormSchema & { id?: number | undefined }) | undefined
-    >(undefined)
+        FormSchema & { id?: number | undefined }
+    >({
+        title: "",
+        content: "",
+        listId: NaN,
+    })
     const { tasks, taskModel } = useTasks()
 
     async function onSubmit(values: FormSchema, currentId: number | undefined) {
@@ -44,13 +49,17 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
     const handleDrawer = async (task?: Task | undefined) => {
         if (task) {
             setDefaultValues({
-                title: task?.title ?? "",
-                content: task?.content,
-                listId: task?.listId ?? 0,
+                title: task.title ?? "",
+                content: task.content ?? "",
+                listId: task.listId ?? 0,
                 id: task?.id,
             })
         } else {
-            setDefaultValues(undefined)
+            setDefaultValues({
+                title: "",
+                content: "",
+                listId: 0,
+            })
         }
         setOpenDrawer(true)
     }
@@ -87,6 +96,7 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
                                                       {
                                                           isCompleted: true,
                                                           title: item.title,
+                                                          content: item.content,
                                                           listId: item.listId,
                                                       },
                                                       item.id
@@ -95,6 +105,7 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
                                                       {
                                                           isCompleted: false,
                                                           title: item.title,
+                                                          content: item.content,
                                                           listId: item.listId,
                                                       },
                                                       item.id
@@ -110,14 +121,18 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
                                     >
                                         <Pencil />
                                     </Button>
-                                    <Button
+                                    {/* <Button
                                         id="toggle-delete-task"
                                         onClick={() =>
                                             item.id && deleteTask(item.id)
                                         }
                                     >
                                         <Trash2 />
-                                    </Button>
+                                    </Button> */}
+                                    <DeleteButton
+                                        id={item.id}
+                                        onDelete={deleteTask}
+                                    />
                                 </div>
                             </div>
                             <p className="px-1">{item?.content}</p>
@@ -127,11 +142,7 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
             </div>
             <DrawerTrigger asChild>
                 <div className="fixed right-0 bottom-0 flex justify-end p-4">
-                    <Button
-                        size={"icon"}
-                        rounded={"full"}
-                        onClick={() => handleDrawer()}
-                    >
+                    <Button size={"icon"} onClick={() => handleDrawer()}>
                         +
                     </Button>
                 </div>

@@ -12,11 +12,11 @@ import { motion } from "motion/react"
 
 // import { Search } from "lucide-react";
 
-import { Calendar } from "@components/ui/calendar"
+import { Calendar } from "@components/ui/shadcn/calendar"
 
 import mokUserPhoto from "@public/mok-user-photo.png"
 import Tasks from "@components/Tasks/Tasks"
-import { Button } from "@components/ui/button"
+import { Button } from "@components/ui/shadcn/button"
 import {
     Drawer,
     DrawerClose,
@@ -25,7 +25,7 @@ import {
     DrawerHeader,
     DrawerTitle,
     DrawerTrigger,
-} from "@components/ui/drawer"
+} from "@components/ui/shadcn/drawer"
 import { TaskListsForm } from "@components/forms/TaskListsForm"
 import { useTaskLists } from "@src/hooks/useTaskLists"
 import { useState } from "react"

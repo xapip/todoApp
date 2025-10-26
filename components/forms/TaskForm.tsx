@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { Button } from "@components/ui/button"
+import { Button } from "@components/ui/shadcn/button"
 import {
     Form,
     FormControl,
@@ -13,9 +13,13 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@components/ui/form"
-import { Input } from "@components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@components/ui/popover"
+} from "@components/ui/shadcn/form"
+import { Input } from "@components/ui/shadcn/input"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@components/ui/shadcn/popover"
 import { cn } from "@lib/utils"
 import { Check, ChevronsUpDown } from "lucide-react"
 import {
@@ -25,13 +29,13 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from "@components/ui/command"
+} from "@components/ui/shadcn/command"
 import { useState } from "react"
-import { Textarea } from "@components/ui/textarea"
+import { Textarea } from "@components/ui/shadcn/textarea"
 
 const formSchema = z.object({
     title: z.string().min(1, "Это поле не может быть пустым"),
-    content: z.string().or(z.undefined()),
+    content: z.string(),
     listId: z.number().min(1, "Пожалуйста, выберите список."),
 })
 
@@ -73,7 +77,6 @@ export function TaskForm({
                                 <FormControl>
                                     <Input
                                         placeholder="глянуть кинцо"
-                                        type="text"
                                         {...field}
                                     />
                                 </FormControl>
@@ -120,6 +123,7 @@ export function TaskForm({
                                                     !field.value &&
                                                         "text-muted-foreground"
                                                 )}
+                                                aria-expanded={open}
                                             >
                                                 {field.value
                                                     ? taskLists.find(
@@ -153,12 +157,11 @@ export function TaskForm({
                                                                     taskList.id
                                                                 }
                                                                 onSelect={() => {
-                                                                    form.setValue(
-                                                                        "listId",
-                                                                        taskList.id,
-                                                                        {
-                                                                            shouldValidate: true,
-                                                                        }
+                                                                    field.onChange(
+                                                                        field.value ===
+                                                                            taskList.id
+                                                                            ? 0
+                                                                            : taskList.id
                                                                     )
                                                                     setOpen(
                                                                         false
@@ -171,8 +174,8 @@ export function TaskForm({
                                                                 <Check
                                                                     className={cn(
                                                                         "ml-auto",
-                                                                        taskList.id ===
-                                                                            field.value
+                                                                        field.value ===
+                                                                            taskList.id
                                                                             ? "opacity-100"
                                                                             : "opacity-0"
                                                                     )}

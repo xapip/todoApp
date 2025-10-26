@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { Button } from "@components/ui/button"
+import { Button } from "@components/ui/shadcn/button"
 import {
     Form,
     FormControl,
@@ -14,8 +14,8 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "@components/ui/form"
-import { Input } from "@components/ui/input"
+} from "@components/ui/shadcn/form"
+import { Input } from "@components/ui/shadcn/input"
 
 const formSchema = z.object({
     listName: z.string().min(1, "Это поле не может быть пустым"),
