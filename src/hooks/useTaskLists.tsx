@@ -1,59 +1,28 @@
-import { useCallback, useEffect, useState } from "react"
-import { createBrowserClient } from "@lib/supabase/client"
-import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
-import { TaskListsModel } from "@lib/supabase/TaskListsModel"
+import { useEffect } from "react"
+
+import { useTaskListsStore } from "@context/store"
 
 export function useTaskLists(listId?: string) {
-    const [taskLists, setTaskLists] = useState<TaskLists[]>([])
-    const [loading, setLoading] = useState(true)
-    console.log("taskLists in hook useTaskLists", taskLists)
+    console.log("taskLists in hook useTaskLists")
 
-    const loadTaskLists = useCallback(async () => {
-        setLoading(true)
-        const { data, error } = await createBrowserClient()
-            .from("taskLists")
-            .select("*")
-            .order("created_at", { ascending: false })
-        if (!error && data) {
-            setTaskLists(data)
-        }
-        setLoading(false)
-    }, [])
-
-    const taskListsModel = new TaskListsModel(createBrowserClient())
+    const {
+        taskLists,
+        isLoading,
+        error,
+        taskListsModel,
+        getTaskLists,
+        subscribeToChanges,
+    } = useTaskListsStore()
 
     useEffect(() => {
-        loadTaskLists()
+        getTaskLists()
 
-        const channel = createBrowserClient()
-            .channel(`taskLists-${listId}`)
-            .on(
-                "postgres_changes",
-                { event: "*", schema: "public", table: "taskLists" },
-                (payload: RealtimePostgresChangesPayload<TaskLists>) => {
-                    if (payload.eventType === "INSERT") {
-                        setTaskLists((prev) => [payload.new, ...prev])
-                    }
-                    if (payload.eventType === "UPDATE") {
-                        setTaskLists((prev) =>
-                            prev.map((t) =>
-                                t.id === payload.new.id ? payload.new : t
-                            )
-                        )
-                    }
-                    if (payload.eventType === "DELETE") {
-                        setTaskLists((prev) =>
-                            prev.filter((t) => t.id !== payload.old.id)
-                        )
-                    }
-                }
-            )
-            .subscribe()
+        const unsubscribe = subscribeToChanges()
 
         return () => {
-            createBrowserClient().removeChannel(channel)
+            unsubscribe()
         }
-    }, [listId, loadTaskLists])
+    }, [getTaskLists, listId, subscribeToChanges])
 
-    return { taskLists, loading, taskListsModel }
+    return { taskLists, isLoading, error, taskListsModel }
 }

@@ -13,30 +13,34 @@ import { Button } from "@components/ui/shadcn/button"
 import { Trash2 } from "lucide-react"
 
 export function DeleteButton({
-    id,
     onDelete,
+    isOpen,
+    onOpenChange,
 }: {
-    id: number
-    onDelete: (id: number) => Promise<void>
+    onDelete: () => Promise<void>
+    isOpen?: boolean
+    onOpenChange?: (value: React.SetStateAction<boolean>) => void
 }) {
     return (
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button>
-                    <Trash2 />
-                </Button>
-            </AlertDialogTrigger>
+        <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+            {!onOpenChange && (
+                <AlertDialogTrigger asChild>
+                    <Button>
+                        <Trash2 />
+                    </Button>
+                </AlertDialogTrigger>
+            )}
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Точно?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Что удалено, вернуть не получится.
+                        Что удалено, назад не вернуть!
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Отмена</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => id && onDelete(id)}>
-                        Да, точно
+                    <AlertDialogCancel>Подумать еще...</AlertDialogCancel>
+                    <AlertDialogAction onClick={onDelete}>
+                        Да, точно!
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

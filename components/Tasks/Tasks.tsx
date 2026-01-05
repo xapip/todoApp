@@ -9,13 +9,12 @@ import {
     DrawerTitle,
     DrawerTrigger,
 } from "@components/ui/shadcn/drawer"
-import { TaskForm } from "@components/forms/TaskForm"
+import { TaskForm } from "@components/Tasks/TaskForm"
 import { useTasks } from "@src/hooks/useTasks"
 import { Label } from "@components/ui/shadcn/label"
 import { Checkbox } from "@components/ui/shadcn/checkbox"
 import { Pencil } from "lucide-react"
 import { DeleteButton } from "@components/ui/deleteButton"
-// import { useTelegramViewport } from "@src/hooks/useTelegramViewport"
 
 type FormSchema = {
     title: string
@@ -27,7 +26,7 @@ type FormSchema = {
 // TODO - в случае успеха, окно закрывается из-за useEffect ниже, но если будет ошибка и что-то пойдет не так?
 // TODO - добавить стилей для задач(застилить каждый айтем, добавить иконки для кнопок, застилить drawer)
 
-export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
+export default function Tasks() {
     const [openDrawer, setOpenDrawer] = useState(false)
     const [defaultValues, setDefaultValues] = useState<
         FormSchema & { id?: number | undefined }
@@ -121,17 +120,8 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
                                     >
                                         <Pencil />
                                     </Button>
-                                    {/* <Button
-                                        id="toggle-delete-task"
-                                        onClick={() =>
-                                            item.id && deleteTask(item.id)
-                                        }
-                                    >
-                                        <Trash2 />
-                                    </Button> */}
                                     <DeleteButton
-                                        id={item.id}
-                                        onDelete={deleteTask}
+                                        onDelete={() => deleteTask(item.id)}
                                     />
                                 </div>
                             </div>
@@ -155,11 +145,7 @@ export default function Tasks({ taskLists }: { taskLists: TaskLists[] }) {
                             : "Добавить задачу"}
                     </DrawerTitle>
                 </DrawerHeader>
-                <TaskForm
-                    taskLists={taskLists}
-                    defaultValues={defaultValues}
-                    onSubmit={onSubmit}
-                />
+                <TaskForm defaultValues={defaultValues} onSubmit={onSubmit} />
                 <DrawerFooter>
                     <DrawerClose>Закрыть</DrawerClose>
                 </DrawerFooter>

@@ -32,6 +32,7 @@ import {
 } from "@components/ui/shadcn/command"
 import { useState } from "react"
 import { Textarea } from "@components/ui/shadcn/textarea"
+import { useTaskListsStore } from "@context/store"
 
 const formSchema = z.object({
     title: z.string().min(1, "Это поле не может быть пустым"),
@@ -40,11 +41,9 @@ const formSchema = z.object({
 })
 
 export function TaskForm({
-    taskLists,
     defaultValues,
     onSubmit,
 }: {
-    taskLists: TaskLists[]
     defaultValues:
         | (z.infer<typeof formSchema> & { id?: number | undefined })
         | undefined
@@ -58,6 +57,7 @@ export function TaskForm({
         resolver: zodResolver(formSchema),
         defaultValues: defaultValues,
     })
+    const { taskLists } = useTaskListsStore()
 
     return (
         <Form {...form}>
