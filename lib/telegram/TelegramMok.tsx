@@ -1,35 +1,34 @@
-'use client'
+"use client"
 
-import { isTMA, mockTelegramEnv } from '@telegram-apps/sdk-react'
+import { isTMA, mockTelegramEnv } from "@telegram-apps/sdk-react"
 
 export function TelegramMock(): void {
-  if (process.env.NODE_ENV !== 'development') return undefined
-
+  if (process.env.NODE_ENV !== "development") return undefined
 
   if (typeof window !== "undefined") {
-    isTMA('complete').then((isTma) => {
+    isTMA("complete").then((isTma) => {
       if (!isTma) {
         const themeParams = {
-          accent_text_color: '#6ab2f2',
-          bg_color: '#17212b',
-          button_color: '#5288c1',
-          button_text_color: '#ffffff',
-          destructive_text_color: '#ec3942',
-          header_bg_color: '#17212b',
-          hint_color: '#708499',
-          link_color: '#6ab3f3',
-          secondary_bg_color: '#232e3c',
-          section_bg_color: '#17212b',
-          section_header_text_color: '#6ab3f3',
-          subtitle_text_color: '#708499',
-          text_color: '#f5f5f5',
+          accent_text_color: "#6ab2f2",
+          bg_color: "#17212b",
+          button_color: "#5288c1",
+          button_text_color: "#ffffff",
+          destructive_text_color: "#ec3942",
+          header_bg_color: "#17212b",
+          hint_color: "#708499",
+          link_color: "#6ab3f3",
+          secondary_bg_color: "#232e3c",
+          section_bg_color: "#17212b",
+          section_header_text_color: "#6ab3f3",
+          subtitle_text_color: "#708499",
+          text_color: "#f5f5f5",
         } as const
 
         mockTelegramEnv({
           launchParams: new URLSearchParams([
             // Discover more launch parameters:
             // https://docs.telegram-mini-apps.com/platform/launch-parameters#parameters-list
-            ['tgWebAppThemeParams', JSON.stringify(themeParams)],
+            ["tgWebAppThemeParams", JSON.stringify(themeParams)],
             // Your init data goes here. Learn more about it here:
             // https://docs.telegram-mini-apps.com/platform/init-data#parameters-list
             //
@@ -43,19 +42,25 @@ export function TelegramMock(): void {
             // user=%7B%22id%22%3A279058397%2C%22first_name%22%3A%22Vladislav%22%2C%22last_name%22...
             // ```
             // But in case you don't really need a valid init data, use this one:
-            ['tgWebAppData', new URLSearchParams([
-              ['auth_date', (new Date().getTime() / 1000 | 0).toString()],
-              ['hash', 'some-hash'],
-              ['signature', 'some-signature'],
-              ['user', JSON.stringify({ id: 168, first_name: 'MokTelegramUser' })],
-            ]).toString()],
-            ['tgWebAppVersion', '8.4'],
-            ['tgWebAppPlatform', 'tdesktop'],
+            [
+              "tgWebAppData",
+              new URLSearchParams([
+                ["auth_date", ((new Date().getTime() / 1000) | 0).toString()],
+                ["hash", "some-hash"],
+                ["signature", "some-signature"],
+                [
+                  "user",
+                  JSON.stringify({ id: 168, first_name: "MokTelegramUser" }),
+                ],
+              ]).toString(),
+            ],
+            ["tgWebAppVersion", "8.4"],
+            ["tgWebAppPlatform", "tdesktop"],
           ]),
         })
 
         console.info(
-          '⚠️ As long as the current environment was not considered as the Telegram-based one, it was mocked. Take a note, that you should not do it in production and current behavior is only specific to the development process. Environment mocking is also applied only in development mode. So, after building the application, you will not see this behavior and related warning, leading to crashing the application outside Telegram.',
+          "⚠️ As long as the current environment was not considered as the Telegram-based one, it was mocked. Take a note, that you should not do it in production and current behavior is only specific to the development process. Environment mocking is also applied only in development mode. So, after building the application, you will not see this behavior and related warning, leading to crashing the application outside Telegram."
         )
       }
     })

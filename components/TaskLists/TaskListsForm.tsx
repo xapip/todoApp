@@ -24,8 +24,8 @@ interface TaskListsFormProps {
 }
 
 const formSchema = z.object({
-  listName: z.string().min(1, "Это поле не может быть пустым"),
-  listColor: z.string(),
+  list_name: z.string().min(1, "Это поле не может быть пустым"),
+  list_color: z.string(),
 })
 
 export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
@@ -38,8 +38,8 @@ export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
     defaultValues: editItem
       ? editItem
       : {
-          listName: "",
-          listColor: "",
+          list_name: "",
+          list_color: "",
         },
     mode: "onChange",
   })
@@ -56,7 +56,7 @@ export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
     } catch (error) {
       console.error(error)
       if (error instanceof Error) {
-        form.setError("listName", {
+        form.setError("list_name", {
           type: "manual",
           message: error.message,
         })
@@ -73,7 +73,7 @@ export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
       >
         <FormField
           control={form.control}
-          name="listName"
+          name="list_name"
           render={({ field, fieldState }) => (
             <FormItem className="w-full max-w-[300px]">
               <FormLabel>Имя списка</FormLabel>
@@ -84,7 +84,7 @@ export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
                   onChange={(e) => {
                     field.onChange(e)
                     if (fieldState.error) {
-                      form.clearErrors("listName")
+                      form.clearErrors("list_name")
                     }
                   }}
                 />
@@ -96,7 +96,7 @@ export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
         />
         <FormField
           control={form.control}
-          name="listColor"
+          name="list_color"
           render={({ field }) => (
             <FormItem className="w-full max-w-[300px]">
               <FormLabel>Цвет списка</FormLabel>

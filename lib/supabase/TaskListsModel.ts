@@ -3,16 +3,16 @@ import { SupabaseClient } from "@supabase/supabase-js"
 import { BaseModel } from "./BaseModel"
 
 export class TaskListsModel<T> extends BaseModel<TaskLists> {
-    constructor(client: SupabaseClient) {
-        super("taskLists", client)
-    }
+  constructor(client: SupabaseClient) {
+    super("task_lists", client)
+  }
 
-    async getAllWithTasks(): Promise<T[]> {
-        const { data, error } = await this.supabaseClient
-            .from(this.tableName)
-            .select("*,tasks(*)")
+  async getAllWithTasks(): Promise<T[]> {
+    const { data, error } = await this.supabaseClient
+      .from(this.tableName)
+      .select("*,tasks(*)")
 
-        if (error) throw new Error(error.message, error)
-        return data as T[]
-    }
+    if (error) throw new Error(error.message, error)
+    return data as T[]
+  }
 }

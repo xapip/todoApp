@@ -34,7 +34,7 @@ export const useTaskListsStore = create<TaskListsStore>((set, get) => {
           error,
         }: { data: TaskLists[] | null; error: PostgrestError | null } =
           await createBrowserClient()
-            .from("taskLists")
+            .from("task_lists")
             .select("*")
             .order("created_at", { ascending: false })
         if (!error && data) {
@@ -50,10 +50,10 @@ export const useTaskListsStore = create<TaskListsStore>((set, get) => {
 
     subscribeToChanges: (listId?: string) => {
       const subscription = createBrowserClient()
-        .channel(`taskLists-${listId}`)
+        .channel(`task_lists-${listId}`)
         .on(
           "postgres_changes",
-          { event: "*", schema: "public", table: "taskLists" },
+          { event: "*", schema: "public", table: "task_lists" },
           (payload: RealtimePostgresChangesPayload<TaskLists>) => {
             const { taskLists: currentData } = get()
 

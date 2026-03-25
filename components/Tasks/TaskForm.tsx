@@ -37,7 +37,7 @@ import { useTaskListsStore } from "@context/taskListsStore"
 const formSchema = z.object({
   title: z.string().min(1, "Это поле не может быть пустым"),
   content: z.string(),
-  listId: z.number().min(1, "Пожалуйста, выберите список."),
+  list_id: z.number().min(1, "Пожалуйста, выберите список."),
 })
 
 export function TaskForm({
@@ -99,7 +99,7 @@ export function TaskForm({
           />
           <FormField
             control={form.control}
-            name="listId"
+            name="list_id"
             render={({ field }) => (
               <FormItem className="flex w-full max-w-[300px] flex-col">
                 <FormLabel>Имя списка</FormLabel>
@@ -118,7 +118,7 @@ export function TaskForm({
                         {field.value
                           ? taskLists.find(
                               (taskList) => taskList.id === field.value
-                            )?.listName
+                            )?.list_name
                           : "Выберите список"}
                         <ChevronsUpDown className="opacity-50" />
                       </Button>
@@ -135,7 +135,7 @@ export function TaskForm({
                         <CommandGroup>
                           {taskLists.map((taskList) => (
                             <CommandItem
-                              value={taskList.listName}
+                              value={taskList.list_name}
                               key={taskList.id}
                               onSelect={() => {
                                 field.onChange(
@@ -144,7 +144,7 @@ export function TaskForm({
                                 setOpen(false)
                               }}
                             >
-                              {taskList.listName}
+                              {taskList.list_name}
                               <Check
                                 className={cn(
                                   "ml-auto",
