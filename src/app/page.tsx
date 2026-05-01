@@ -2,11 +2,11 @@
 
 import eruda from "eruda"
 
-import TaskLists from "@components/TaskLists/TaskLists"
-import Tasks from "@components/Tasks/Tasks"
-import Header from "@components/Header"
+import TaskLists from "@src/components/TaskLists/TaskLists"
+import Tasks from "@src/components/Tasks/Tasks"
+import Header from "@src/components/Header"
 
-import { DraggableCalendar } from "@components/ui/DraggableCalendar"
+import { DraggableCalendar } from "@src/components/ui/DraggableCalendar"
 
 export default function Home() {
   eruda.init()

@@ -1,12 +1,12 @@
 import crypto from "crypto"
 import { NextResponse } from "next/server"
 
-import { createServerClient } from "@lib/supabase/server"
-import { getTmaData } from "@lib/telegram/getTmaData"
+import { createServerClient } from "@src/lib/supabase/server"
+import { getTmaData } from "@src/lib/telegram/getTmaData"
 
 export async function POST(req: Request) {
   const authDataObject = await getTmaData(req.headers)
-  if (!authDataObject) {
+  if (!authDataObject || !authDataObject.user?.id) {
     throw new Error("No init data")
   }
 
@@ -74,10 +74,10 @@ export async function POST(req: Request) {
     .from("users")
     .upsert(
       {
-        tg_id: authDataObject.user?.id,
-        user_name: authDataObject.user?.username,
-        first_name: authDataObject.user?.first_name,
-        last_name: authDataObject.user?.last_name,
+        tg_id: authDataObject.user.id,
+        user_name: authDataObject.user.username,
+        first_name: authDataObject.user.first_name,
+        last_name: authDataObject.user.last_name,
       },
       { onConflict: "tg_id" }
     )
