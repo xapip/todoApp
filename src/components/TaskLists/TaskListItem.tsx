@@ -25,7 +25,8 @@ export default function TaskListItem({
   taskList: TablesRow<"task_lists">
 }) {
   const [isOpenDeleteAlarm, setOpenDeleteAlarm] = useState(false)
-  const { setEditItem, taskListsModel } = useTaskListsStore()
+  const { setEditableItem, taskListsModel, setSelectedItem } =
+    useTaskListsStore()
   const telegramData = useSignal(_initDataState)
 
   const shareList = async (taskList: TablesRow<"task_lists">) => {
@@ -49,7 +50,12 @@ export default function TaskListItem({
   return (
     <li className="bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 relative overflow-hidden rounded-md border px-2 shadow-xs">
       <div className="flex items-center gap-1.5">
-        <Button variant={"ghost"} size={"sm"} className="p-0">
+        <Button
+          variant={"ghost"}
+          size={"sm"}
+          className="p-0"
+          onClick={() => setSelectedItem({ ...taskList })}
+        >
           {taskList.list_name}
         </Button>
         <DropdownMenu>
@@ -62,7 +68,7 @@ export default function TaskListItem({
               Поделиться
             </DropdownMenuItem>
             <DrawerTrigger>
-              <DropdownMenuItem onSelect={() => setEditItem(taskList)}>
+              <DropdownMenuItem onSelect={() => setEditableItem(taskList)}>
                 <Pencil />
                 Изменить
               </DropdownMenuItem>

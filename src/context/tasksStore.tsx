@@ -9,16 +9,21 @@ type TaskWithRelation = AutoReplaceRelation<"tasks", "list_id">
 
 interface TasksStore {
   tasks: TaskWithRelation[]
+  filteredTasks: TaskWithRelation[]
+  selectedTaskType: "withDueDate" | "withoutDueDate"
   isLoading: boolean
   error: unknown | undefined
   tasksModel: BaseModel<"tasks">
   getTasks: () => Promise<void>
   subscribeToChanges: (listId?: string | undefined) => () => void
+  setFilteredTasks: (listId: number) => void
 }
 
 export const useTasksStore = create<TasksStore>((set, get) => {
   return {
     tasks: [],
+    filteredTasks: [],
+    selectedTaskType: "withDueDate",
     isLoading: false,
     error: null,
     tasksModel: new BaseModel("tasks"),
@@ -28,13 +33,17 @@ export const useTasksStore = create<TasksStore>((set, get) => {
       const { tasksModel } = get()
       try {
         const data = await tasksModel.getAll({
-          select: "*, list_id (id, list_name, list_color, created_at, user_id)",
+          select: "*, list_id (id, list_name, list_color)",
           sort: [
-            { column: "created_at", order: "desc" },
             { column: "due_date", order: "asc", nullsFirst: false },
+            { column: "created_at", order: "asc" },
           ],
         })
-        set({ tasks: data as unknown as TaskWithRelation[], isLoading: false })
+        set({
+          tasks: data as unknown as TaskWithRelation[],
+          isLoading: false,
+          filteredTasks: data as unknown as TaskWithRelation[],
+        })
       } catch (error) {
         set({ error })
       }
@@ -66,6 +75,9 @@ export const useTasksStore = create<TasksStore>((set, get) => {
               case "DELETE":
                 set({
                   tasks: currentData.filter((t) => t.id !== payload.old.id),
+                  filteredTasks: get().filteredTasks.filter(
+                    (t) => t.id !== payload.old.id
+                  ),
                 })
             }
           }
@@ -75,6 +87,16 @@ export const useTasksStore = create<TasksStore>((set, get) => {
       return () => {
         subscription.unsubscribe()
       }
+    },
+
+    setFilteredTasks: (listId: number) => {
+      const { tasks } = get()
+      set({
+        filteredTasks:
+          listId >= 0
+            ? tasks.filter((t) => t.list_id.id === listId)
+            : [...tasks],
+      })
     },
   }
 })

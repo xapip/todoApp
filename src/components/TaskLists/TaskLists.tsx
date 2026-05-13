@@ -16,16 +16,17 @@ import { useEffect, useState } from "react"
 export default function TaskLists() {
   const [openDrawer, setOpenDrawer] = useState(false)
   const {
-    setEditItem,
-    editItem,
+    setEditableItem,
+    editableItem,
     taskLists,
     isLoading,
     getTaskLists,
     subscribeToChanges,
+    setSelectedItem,
   } = useTaskListsStore()
 
   const handleAddNewTaskList = () => {
-    setEditItem(undefined)
+    setEditableItem(undefined)
   }
 
   useEffect(() => {
@@ -55,6 +56,7 @@ export default function TaskLists() {
                     variant={"outline"}
                     size={"sm"}
                     className="relative overflow-hidden whitespace-nowrap"
+                    onClick={() => setSelectedItem(undefined)}
                   >
                     Все
                   </Button>
@@ -86,7 +88,7 @@ export default function TaskLists() {
         <DrawerContent className="px-5">
           <DrawerHeader>
             <DrawerTitle>
-              {!!editItem ? "Изменить список" : "Добавить список"}
+              {!!editableItem ? "Изменить список" : "Добавить список"}
             </DrawerTitle>
           </DrawerHeader>
           <TaskListsForm closeDrawer={() => setOpenDrawer(false)} />

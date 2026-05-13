@@ -10,10 +10,12 @@ interface TaskListsStore {
   isLoading: boolean
   error: unknown | undefined
   taskListsModel: BaseModel<"task_lists">
-  editItem: TablesRow<"task_lists"> | null
+  editableItem: TablesRow<"task_lists"> | null
+  selectedItem: TablesRow<"task_lists"> | null
   getTaskLists: () => Promise<void>
   subscribeToChanges: (listId?: string | undefined) => () => void
-  setEditItem: (taskList: TablesRow<"task_lists"> | undefined) => void
+  setEditableItem: (taskList: TablesRow<"task_lists"> | undefined) => void
+  setSelectedItem: (taskList: TablesRow<"task_lists"> | undefined) => void
 }
 
 export const useTaskListsStore = create<TaskListsStore>((set, get) => {
@@ -22,23 +24,24 @@ export const useTaskListsStore = create<TaskListsStore>((set, get) => {
     isLoading: false,
     error: null,
     taskListsModel: new BaseModel("task_lists"),
-    editItem: null,
+    editableItem: null,
+    selectedItem: null,
 
     getTaskLists: async () => {
-      set((state) => ({ isLoading: (state.isLoading = true) }))
+      set(() => ({ isLoading: true }))
       const { taskListsModel } = get()
       try {
         const data = await taskListsModel.getAll({
           sort: { column: "created_at", order: "desc" },
         })
         if (data) {
-          set((state) => ({
-            taskLists: (state.taskLists = data),
-            isLoading: (state.isLoading = false),
+          set(() => ({
+            taskLists: data,
+            isLoading: false,
           }))
         }
       } catch (error) {
-        set((state) => ({ error: (state.error = error) }))
+        set(() => ({ error }))
       }
     },
 
@@ -75,13 +78,23 @@ export const useTaskListsStore = create<TaskListsStore>((set, get) => {
       }
     },
 
-    setEditItem: (taskList) => {
+    setEditableItem: (taskList) => {
       if (!!taskList) {
-        set((state) => ({
-          editItem: (state.editItem = { ...taskList }),
+        set(() => ({
+          editableItem: { ...taskList },
         }))
       } else {
-        set((state) => ({ editItem: (state.editItem = null) }))
+        set(() => ({ editableItem: null }))
+      }
+    },
+
+    setSelectedItem: (taskList) => {
+      if (!!taskList) {
+        set(() => ({
+          selectedItem: { ...taskList },
+        }))
+      } else {
+        set(() => ({ selectedItem: null }))
       }
     },
   }

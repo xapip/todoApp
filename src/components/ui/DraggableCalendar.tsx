@@ -9,6 +9,7 @@ import {
 } from "framer-motion"
 import { cn } from "@src/lib/utils"
 import { useCalendarStore } from "@src/context/calendarStore"
+import { useTasksStore } from "@src/context/tasksStore"
 
 const DRAG_RANGE = 0
 const SHOW_WEEKS = 6
@@ -30,6 +31,8 @@ export function DraggableCalendar() {
   const generatedCalendar = useCallback(() => {
     return generateCalendar(selectedDate)
   }, [selectedDate])
+
+  const {} = useTasksStore()
 
   const currentWeekIndex = getWeekIndex(selectedDate)
 
@@ -130,9 +133,11 @@ export function DraggableCalendar() {
                           exit={{ scale: 0 }}
                           transition={{ duration: 0.2 }}
                           className={cn(
-                            "absolute inset-0 rounded-full transition-all duration-300 hover:bg-black/5",
+                            "absolute inset-0 rounded-full transition-all duration-300 hover:bg-black/15",
+                            isSameDay(day, new Date()) &&
+                              "border-primary/50 border",
                             isSameDay(day, selectedDate) &&
-                              "rounded-full bg-black/10 font-bold hover:bg-black/10"
+                              "bg-black/10 font-bold"
                           )}
                         />
                         <span

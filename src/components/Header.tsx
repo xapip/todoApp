@@ -37,10 +37,9 @@ export default function Header() {
           isShowDay && "text-base"
         )}
       >
-        {/* // todo если isShowDay=true а календарь перемотан на другой месяц, то будет указан другой месяц с текущим днем(РЕШЕНИЕ? - использовать только month из стора, он имеет тип данных Date, указывает на текущий день, выбранную дату либо на первое число месяца?) */}
         {format(
           selectedDate,
-          isShowDay ? `EEEE ${selectedDate.getDate()} LLL` : "LLLL",
+          isShowDay ? `EEEE ${selectedDate.getDate()} MMMM, yyyy` : "LLLL yyyy",
           {
             locale: ru,
           }
@@ -52,3 +51,5 @@ export default function Header() {
     </header>
   )
 }
+
+// TODO - просклонять месяц в зависимости от числа, например 1 января, 2 января, 5 января и тд. (РЕШЕНИЕ? - использовать библиотеку date-fns, она уже имеет функцию для склонения месяцев)

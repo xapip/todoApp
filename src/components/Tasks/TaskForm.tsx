@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -30,16 +31,17 @@ import {
   CommandItem,
   CommandList,
 } from "@src/components/ui/shadcn/command"
-import { useState } from "react"
 import { Textarea } from "@src/components/ui/shadcn/textarea"
 import { useTaskListsStore } from "@src/context/taskListsStore"
 import { TablesInsert } from "@db-types"
+import { DateTimePickerInput } from "../ui/DatePickerInput"
 
 type FormSchema = TablesInsert<"tasks"> | null
 
 const formSchema = z.object({
   title: z.string().min(1, "Это поле не может быть пустым"),
   content: z.string(),
+  due_date: z.string().nullable().optional(),
   list_id: z.number().min(1, "Пожалуйста, выберите список."),
 })
 
@@ -57,6 +59,7 @@ export function TaskForm({
       title: defaultValues?.title ?? "",
       content: defaultValues?.content,
       list_id: defaultValues?.list_id,
+      due_date: defaultValues?.due_date,
     },
   })
   const { taskLists } = useTaskListsStore()
@@ -95,6 +98,25 @@ export function TaskForm({
                   />
                 </FormControl>
                 <FormDescription>Немного подробностей</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="due_date"
+            render={({ field }) => (
+              <FormItem className="w-full max-w-[300px]">
+                <FormLabel>Срок выполнения</FormLabel>
+                <FormControl>
+                  <DateTimePickerInput
+                    value={field.value ?? ""}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormDescription>
+                  До какого числа нужно выполнить задачу?
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

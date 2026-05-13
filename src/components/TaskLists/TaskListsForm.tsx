@@ -26,23 +26,18 @@ interface TaskListsFormProps {
 
 const formSchema = z.object({
   list_name: z.string().min(1, "Это поле не может быть пустым"),
-  list_color: z.string(),
+  list_color: z.string().nullable(),
 })
 
 export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
   const [loading, setLoading] = useState(false)
-  const { editItem, taskListsModel } = useTaskListsStore()
+  const { editableItem, taskListsModel } = useTaskListsStore()
   const [hex, setHex] = useState("#F44E3B")
   const { user } = useUserStore()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: editItem
-      ? editItem
-      : {
-          list_name: "",
-          list_color: "",
-        },
+    defaultValues: { ...editableItem },
     mode: "onChange",
   })
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -50,8 +45,8 @@ export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
 
     try {
       if (taskListsModel) {
-        if (editItem) {
-          taskListsModel.update(editItem.id, { ...values })
+        if (editableItem) {
+          taskListsModel.update(editableItem.id, { ...values })
         } else {
           taskListsModel.create({
             ...values,
@@ -149,7 +144,7 @@ export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
           )}
         />
         <Button type="submit" onClick={closeDrawer}>
-          {!!editItem ? "Обновить" : "Добавить"}
+          {!!editableItem ? "Обновить" : "Добавить"}
         </Button>
         {loading && <div className="absolute inset-0 blur-sm"></div>}
       </form>
