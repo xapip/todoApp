@@ -280,7 +280,7 @@ export default function Tasks() {
             >
               <motion.span
                 className={cn(
-                  "translate-x-1/6 transition-all duration-300",
+                  "flex translate-x-1/6 flex-nowrap items-center gap-1 transition-all duration-300",
                   tasksType === "withDueDate"
                     ? "translate-x-1/6"
                     : "-translate-x-1/6"
@@ -288,37 +288,41 @@ export default function Tasks() {
               >
                 <span
                   className={cn(
-                    "transition-colors duration-300",
+                    "flex items-center gap-1 transition-colors duration-300",
                     tasksType !== "withDueDate" && "text-text-color/50"
                   )}
                 >
                   Со сроком
+                  <span
+                    className={cn(
+                      "bg-foreground/90 text-accent flex size-4.5 items-center justify-center rounded-full p-0.5 text-[11px] transition-all duration-300",
+                      tasksType !== "withDueDate" && "bg-foreground/50"
+                    )}
+                  >
+                    {tasksWithDueDate.length > 100
+                      ? "99+"
+                      : tasksWithDueDate.length}
+                  </span>
                 </span>{" "}
-                <span
-                  className={cn(
-                    "bg-foreground/90 text-accent rounded-full p-0.5 text-[11px] transition-all duration-300",
-                    tasksType !== "withDueDate" && "bg-foreground/50"
-                  )}
-                >
-                  {tasksWithDueDate.length}
-                </span>
                 <span className="text-text-color/70">/</span>{" "}
                 <span
                   className={cn(
-                    "transition-colors duration-300",
+                    "flex items-center gap-1 transition-colors duration-300",
                     tasksType === "withDueDate" && "text-text-color/50"
                   )}
                 >
                   Без срока
+                  <span
+                    className={cn(
+                      "bg-foreground/90 text-accent flex size-4.5 items-center justify-center rounded-full p-0.5 text-[11px] transition-all duration-300",
+                      tasksType === "withDueDate" && "bg-foreground/50"
+                    )}
+                  >
+                    {tasksWithoutDueDate.length > 100
+                      ? "99+"
+                      : tasksWithoutDueDate.length}
+                  </span>
                 </span>{" "}
-                <span
-                  className={cn(
-                    "bg-foreground/90 text-accent rounded-full p-0.5 text-[11px] transition-all duration-300",
-                    tasksType === "withDueDate" && "bg-foreground/50"
-                  )}
-                >
-                  {tasksWithoutDueDate.length}
-                </span>
               </motion.span>
             </Button>
           </motion.div>
