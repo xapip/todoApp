@@ -2,11 +2,7 @@ import * as motion from "motion/react-client"
 
 import TaskItem from "./TaskItem"
 
-import {
-  AutoReplaceRelation,
-  TablesInsert,
-  TablesRow,
-} from "@src/lib/supabase/helpers.types"
+import { AutoReplaceRelation } from "@src/lib/supabase/helpers.types"
 
 type TaskWithRelation = AutoReplaceRelation<"tasks", "list_id">
 type TaskGroup = {
@@ -15,26 +11,11 @@ type TaskGroup = {
   tasks: TaskWithRelation[]
 }
 
-type FormSchema = TablesInsert<"tasks"> | null
-
-function Tasks({
-  tasks,
-  onSubmit,
-  handleDrawer,
-}: {
-  tasks: TaskWithRelation[]
-  onSubmit: (values: FormSchema, currentId: string | undefined) => Promise<void>
-  handleDrawer: (task: TablesRow<"tasks"> | undefined) => Promise<void>
-}) {
+function Tasks({ tasks }: { tasks: TaskWithRelation[] }) {
   return (
     <ul className="space-y-2">
       {tasks.map((item) => (
-        <TaskItem
-          key={item.id}
-          item={item}
-          onSubmit={onSubmit}
-          handleDrawer={handleDrawer}
-        />
+        <TaskItem key={item.id} item={item} />
       ))}
     </ul>
   )
@@ -45,15 +26,11 @@ export default function TasksTab({
   tasksWithoutDueDate,
   tasksWithDueDate,
   direction,
-  onSubmit,
-  handleDrawer,
 }: {
   tasksType: "withDueDate" | "withoutDueDate"
   tasksWithoutDueDate: TaskWithRelation[]
   tasksWithDueDate: TaskGroup[]
   direction: number
-  onSubmit: (values: FormSchema, currentId: string | undefined) => Promise<void>
-  handleDrawer: (task: TablesRow<"tasks"> | undefined) => Promise<void>
 }) {
   const variants = {
     initial: (direction: number) => ({
@@ -105,22 +82,14 @@ export default function TasksTab({
                 {group.label}
               </div>
 
-              <Tasks
-                tasks={group.tasks}
-                onSubmit={onSubmit}
-                handleDrawer={handleDrawer}
-              />
+              <Tasks tasks={group.tasks} />
             </section>
           ))}
           {/* Spacer для возможности прокрутить последние группы до верхней части */}
           <div className="h-96" />
         </div>
       ) : (
-        <Tasks
-          tasks={tasksWithoutDueDate}
-          onSubmit={onSubmit}
-          handleDrawer={handleDrawer}
-        />
+        <Tasks tasks={tasksWithoutDueDate} />
       )}
     </motion.div>
   )

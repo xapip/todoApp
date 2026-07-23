@@ -9,7 +9,7 @@ import Header from "@src/components/Header"
 import { DraggableCalendar } from "@src/components/ui/DraggableCalendar"
 
 export default function Home() {
-  eruda.init()
+  if (process.env.NODE_ENV === "development") eruda.init()
 
   return (
     <div className="flex h-full w-full flex-col space-y-3 overflow-hidden px-1">

@@ -33,42 +33,46 @@ import {
 } from "@src/components/ui/shadcn/command"
 import { Textarea } from "@src/components/ui/shadcn/textarea"
 import { useTaskListsStore } from "@src/context/taskListsStore"
-import { TablesInsert } from "@db-types"
 import { DateTimePickerInput } from "../ui/DatePickerInput"
-
-type FormSchema = TablesInsert<"tasks"> | null
+import useTasksCreate from "@src/hooks/tasks/useTasksCreate"
+import { useTasksStore } from "@src/context/tasksStore"
+import useTasksUpdate from "@src/hooks/tasks/useTasksUpdate"
 
 const formSchema = z.object({
   title: z.string().min(1, "Это поле не может быть пустым"),
   content: z.string(),
-  due_date: z.string().nullable().optional(),
+  due_date: z.string().nullable(),
   list_id: z.number().min(1, "Пожалуйста, выберите список."),
 })
 
-export function TaskForm({
-  defaultValues,
-  onSubmit,
-}: {
-  defaultValues: FormSchema
-  onSubmit: (values: FormSchema, currentId: string | undefined) => Promise<void>
-}) {
+export function TaskForm() {
+  const { initialFormValues } = useTasksStore()
   const [open, setOpen] = useState(false)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: defaultValues?.title ?? "",
-      content: defaultValues?.content,
-      list_id: defaultValues?.list_id,
-      due_date: defaultValues?.due_date,
+      title: initialFormValues?.title ?? "",
+      content: initialFormValues?.content,
+      list_id: initialFormValues?.list_id.id,
+      due_date: initialFormValues?.due_date ?? "",
     },
   })
   const { taskLists } = useTaskListsStore()
+  const createTask = useTasksCreate()
+  const updateTask = useTasksUpdate()
 
   return (
     <Form {...form}>
       <div className="relative overflow-y-scroll">
         <form
-          onSubmit={form.handleSubmit((e) => onSubmit(e, defaultValues?.id))}
+          onSubmit={form.handleSubmit((e) =>
+            initialFormValues
+              ? updateTask.mutate({
+                  id: initialFormValues.id,
+                  payload: { ...initialFormValues },
+                })
+              : createTask.mutate({ payload: e })
+          )}
           className="flex flex-col items-center space-y-8"
         >
           <FormField
@@ -192,7 +196,7 @@ export function TaskForm({
             )}
           />
           <Button type="submit">
-            {!!defaultValues?.id ? "Обновить" : "Добавить"}
+            {!!initialFormValues?.id ? "Обновить" : "Добавить"}
           </Button>
         </form>
       </div>

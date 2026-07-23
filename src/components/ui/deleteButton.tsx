@@ -17,7 +17,7 @@ export function DeleteButton({
   isOpen,
   onOpenChange,
 }: {
-  onDelete: () => Promise<void>
+  onDelete: () => void
   isOpen?: boolean
   onOpenChange?: (value: React.SetStateAction<boolean>) => void
 }) {

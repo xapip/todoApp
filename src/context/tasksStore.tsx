@@ -1,101 +1,31 @@
 import { create } from "zustand"
 
-import { createBrowserClient } from "@src/lib/supabase/client"
-import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import { BaseModel } from "@src/lib/supabase/BaseModel"
 import { AutoReplaceRelation } from "@src/lib/supabase/helpers.types"
 
 type TaskWithRelation = AutoReplaceRelation<"tasks", "list_id">
-
 interface TasksStore {
-  tasks: TaskWithRelation[]
-  filteredTasks: TaskWithRelation[]
+  initialFormValues: TaskWithRelation | null
   selectedTaskType: "withDueDate" | "withoutDueDate"
-  isLoading: boolean
-  error: unknown | undefined
   tasksModel: BaseModel<"tasks">
-  getTasks: () => Promise<void>
-  subscribeToChanges: (listId?: string | undefined) => () => void
-  setFilteredTasks: (listId: number) => void
+  isOpenFormDrawer: boolean
+  setIsOpenFormDrawer: (newValue: boolean) => void
+  setInitialFormValues: (initialValue: TaskWithRelation | null) => void
 }
 
-export const useTasksStore = create<TasksStore>((set, get) => {
+export const useTasksStore = create<TasksStore>((set) => {
   return {
-    tasks: [],
-    filteredTasks: [],
+    initialFormValues: null,
     selectedTaskType: "withDueDate",
-    isLoading: false,
-    error: null,
     tasksModel: new BaseModel("tasks"),
+    isOpenFormDrawer: false,
 
-    getTasks: async () => {
-      set({ isLoading: true })
-      const { tasksModel } = get()
-      try {
-        const data = await tasksModel.getAll({
-          select: "*, list_id (id, list_name, list_color)",
-          sort: [
-            { column: "due_date", order: "asc", nullsFirst: false },
-            { column: "created_at", order: "asc" },
-          ],
-        })
-        set({
-          tasks: data as unknown as TaskWithRelation[],
-          isLoading: false,
-          filteredTasks: data as unknown as TaskWithRelation[],
-        })
-      } catch (error) {
-        set({ error })
-      }
+    setIsOpenFormDrawer: (newValue) => {
+      set({ isOpenFormDrawer: newValue })
     },
-
-    subscribeToChanges: (listId?: string) => {
-      const subscription = createBrowserClient()
-        .channel(`tasks-${listId}`)
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "tasks" },
-          (payload: RealtimePostgresChangesPayload<TaskWithRelation>) => {
-            const { tasks: currentData } = get()
-            switch (payload.eventType) {
-              case "INSERT":
-                set({
-                  tasks: [payload.new as TaskWithRelation, ...currentData],
-                })
-                break
-              case "UPDATE":
-                set({
-                  tasks: currentData.map((t) =>
-                    t.id === payload.new.id
-                      ? (payload.new as TaskWithRelation)
-                      : t
-                  ),
-                })
-                break
-              case "DELETE":
-                set({
-                  tasks: currentData.filter((t) => t.id !== payload.old.id),
-                  filteredTasks: get().filteredTasks.filter(
-                    (t) => t.id !== payload.old.id
-                  ),
-                })
-            }
-          }
-        )
-        .subscribe()
-
-      return () => {
-        subscription.unsubscribe()
-      }
-    },
-
-    setFilteredTasks: (listId: number) => {
-      const { tasks } = get()
+    setInitialFormValues: (initialValue) => {
       set({
-        filteredTasks:
-          listId >= 0
-            ? tasks.filter((t) => t.list_id.id === listId)
-            : [...tasks],
+        initialFormValues: initialValue,
       })
     },
   }

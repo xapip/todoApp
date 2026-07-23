@@ -3,30 +3,18 @@ import { Label } from "@src/components/ui/shadcn/label"
 import { Checkbox } from "@src/components/ui/shadcn/checkbox"
 import { Pencil } from "lucide-react"
 import { DeleteButton } from "@src/components/ui/deleteButton"
-import {
-  AutoReplaceRelation,
-  TablesInsert,
-  TablesRow,
-} from "@src/lib/supabase/helpers.types"
-import { useTasksStore } from "@src/context/tasksStore"
+import { AutoReplaceRelation } from "@src/lib/supabase/helpers.types"
 import { cn } from "@src/lib/utils"
+import useTasksUpdate from "@src/hooks/tasks/useTasksUpdate"
+import useTasksDelete from "@src/hooks/tasks/useTasksDelete"
+import { useTasksStore } from "@src/context/tasksStore"
 
 type TaskWithRelation = AutoReplaceRelation<"tasks", "list_id">
-type FormSchema = TablesInsert<"tasks"> | null
 
-export default function TaskItem({
-  item,
-  onSubmit,
-  handleDrawer,
-}: {
-  item: TaskWithRelation
-  onSubmit: (values: FormSchema, currentId: string | undefined) => Promise<void>
-  handleDrawer: (task: TablesRow<"tasks"> | undefined) => Promise<void>
-}) {
-  const { tasksModel } = useTasksStore()
-  const deleteTask = async (id: string) => {
-    await tasksModel.delete(id)
-  }
+export default function TaskItem({ item }: { item: TaskWithRelation }) {
+  const updateTask = useTasksUpdate()
+  const deleteTask = useTasksDelete()
+  const { setInitialFormValues, setIsOpenFormDrawer } = useTasksStore()
   const nowDate = new Date()
   const dueDate = item.due_date ? new Date(item.due_date) : null
   const isOverdue = dueDate ? dueDate < nowDate : false
@@ -49,26 +37,28 @@ export default function TaskItem({
             id="toggle-complete-task"
             checked={item.is_completed}
             onCheckedChange={(checked) =>
-              onSubmit(
-                {
+              updateTask.mutate({
+                id: item.id,
+                payload: {
                   ...item,
-                  list_id: item.list_id.id,
                   is_completed: checked ? true : false,
                 },
-                item.id
-              )
+              })
             }
           />
           {item.title}
         </Label>
         <div className="flex flex-row items-center gap-2">
           <Button
-            id="toggle-delete-task"
-            onClick={() => handleDrawer({ ...item, list_id: item.list_id.id })}
+            aria-label="update task"
+            onClick={() => {
+              setInitialFormValues(item)
+              setIsOpenFormDrawer(true)
+            }}
           >
             <Pencil />
           </Button>
-          <DeleteButton onDelete={() => deleteTask(item.id)} />
+          <DeleteButton onDelete={() => deleteTask.mutate({ id: item.id })} />
         </div>
       </div>
       {item.due_date && (

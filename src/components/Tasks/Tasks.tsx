@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Button } from "@src/components/ui/shadcn/button"
 import {
   Drawer,
@@ -10,9 +10,7 @@ import {
   DrawerTrigger,
 } from "@src/components/ui/shadcn/drawer"
 import { TaskForm } from "@src/components/Tasks/TaskForm"
-import { AutoReplaceRelation, TablesRow } from "@src/lib/supabase/helpers.types"
-import { TablesInsert } from "@db-types"
-import { useTasksStore } from "@src/context/tasksStore"
+import { AutoReplaceRelation } from "@src/lib/supabase/helpers.types"
 import * as motion from "motion/react-client"
 import { AnimatePresence } from "motion/react"
 import TasksTab from "./TasksTab"
@@ -21,12 +19,10 @@ import { useTaskListsStore } from "@src/context/taskListsStore"
 import { format, isToday, isTomorrow, isYesterday } from "date-fns"
 import { ru } from "date-fns/locale"
 import { useCalendarStore } from "@src/context/calendarStore"
+import useTanstaсkQuery from "@src/hooks/useTanstakQuery"
+import { useTasksStore } from "@src/context/tasksStore"
 
-type FormSchema = TablesInsert<"tasks"> | null
 type TaskWithRelation = AutoReplaceRelation<"tasks", "list_id">
-
-// TODO - в случае успеха, окно закрывается из-за useEffect ниже, но если будет ошибка и что-то пойдет не так?
-// TODO - добавить стилей для задач(застилить каждый айтем, добавить иконки для кнопок, застилить drawer)
 
 type TaskGroup = {
   dateKey: string
@@ -77,23 +73,33 @@ function groupTasksByDate(tasks: TaskWithRelation[]) {
 }
 
 export default function Tasks() {
-  const [openDrawer, setOpenDrawer] = useState(false)
-  const [defaultValues, setDefaultValues] = useState<FormSchema>(null)
   const [tasksType, setTasksType] = useState<"withDueDate" | "withoutDueDate">(
     "withDueDate"
   )
 
+  // TQ
+  const { data: tasks } = useTanstaсkQuery()
+
+  // Zustand stores
   const { selectedItem } = useTaskListsStore()
-  const { filteredTasks, getTasks, setFilteredTasks, tasksModel } =
+  const { initialFormValues, isOpenFormDrawer, setIsOpenFormDrawer } =
     useTasksStore()
   const { selectedDate, setSelectedDate } = useCalendarStore()
 
-  const [tasksWithDueDate, setTasksWithDueDate] = useState<
-    typeof filteredTasks
-  >([])
-  const [tasksWithoutDueDate, setTasksWithoutDueDate] = useState<
-    typeof filteredTasks
-  >([])
+  // Сортировка задач по выбранному taskList
+  const filteredTasks = useMemo(() => {
+    return selectedItem
+      ? tasks?.filter((t) => t.list_id.id === selectedItem.id)
+      : tasks
+  }, [selectedItem, tasks])
+
+  // Разбивка задач со сроком исполнения и без срока
+  let tasksWithDueDate: TaskWithRelation[] = []
+  let tasksWithoutDueDate: TaskWithRelation[] = []
+  if (filteredTasks) {
+    tasksWithDueDate = filteredTasks.filter((t) => t.due_date !== null)
+    tasksWithoutDueDate = filteredTasks.filter((t) => t.due_date === null)
+  }
 
   const observerRootRef = useRef<HTMLDivElement>(null)
   const currentObservedDateRef = useRef<string | null>(null)
@@ -123,47 +129,21 @@ export default function Tasks() {
     return true
   }
 
-  useEffect(() => {
-    if (selectedItem) {
-      setFilteredTasks(selectedItem.id)
-    } else {
-      setFilteredTasks(-1)
-    }
-  }, [selectedItem, setFilteredTasks])
-
-  useEffect(() => {
-    setTasksWithDueDate(filteredTasks.filter((t) => t.due_date !== null))
-    setTasksWithoutDueDate(filteredTasks.filter((t) => t.due_date === null))
-  }, [filteredTasks])
-
-  useEffect(() => {
-    getTasks()
-  }, [getTasks])
-
-  async function onSubmit(values: FormSchema, currentId: string | undefined) {
-    if (values) {
-      if (currentId) {
-        await tasksModel.update(currentId, { ...values })
-      } else {
-        await tasksModel.create({ ...values })
-      }
-    }
-  }
-
-  const handleDrawer = async (task: TablesRow<"tasks"> | undefined) => {
+  // TODO - пока не удалять, скорее всего тут нужно будет реализовать добавление начальных данных в форму
+  /* const handleDrawer = async (task: TaskWithRelation | undefined) => {
     if (task) {
       setDefaultValues({ ...task })
     } else {
       setDefaultValues(null)
     }
     setOpenDrawer(true)
-  }
+  } */
 
   const direction = tasksType === "withDueDate" ? 1 : -1
 
   useEffect(() => {
-    setOpenDrawer(false)
-  }, [filteredTasks])
+    setIsOpenFormDrawer(false)
+  }, [setIsOpenFormDrawer])
 
   const handleChangeTabs = () => {
     setTasksType(tasksType === "withDueDate" ? "withoutDueDate" : "withDueDate")
@@ -265,8 +245,8 @@ export default function Tasks() {
 
   return (
     <Drawer
-      open={openDrawer}
-      onOpenChange={setOpenDrawer}
+      open={isOpenFormDrawer}
+      onOpenChange={setIsOpenFormDrawer}
       repositionInputs={false}
     >
       <ul className="flex w-full flex-row items-center gap-2">
@@ -329,7 +309,7 @@ export default function Tasks() {
         </li>
         <li>
           <DrawerTrigger asChild>
-            <Button size={"icon"} onClick={() => handleDrawer(undefined)}>
+            <Button size={"icon"} onClick={() => setIsOpenFormDrawer(true)}>
               +
             </Button>
           </DrawerTrigger>
@@ -344,8 +324,6 @@ export default function Tasks() {
             tasksWithoutDueDate={tasksWithoutDueDate}
             tasksWithDueDate={groupedTasks}
             direction={direction}
-            onSubmit={onSubmit}
-            handleDrawer={handleDrawer}
           />
         </AnimatePresence>
       </div>
@@ -353,12 +331,12 @@ export default function Tasks() {
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>
-            {defaultValues && !!defaultValues.id
+            {initialFormValues && !!initialFormValues.id
               ? "Обновить задачу"
               : "Добавить задачу"}
           </DrawerTitle>
         </DrawerHeader>
-        <TaskForm defaultValues={defaultValues} onSubmit={onSubmit} />
+        <TaskForm />
         <DrawerFooter>
           <DrawerClose>Закрыть</DrawerClose>
         </DrawerFooter>
