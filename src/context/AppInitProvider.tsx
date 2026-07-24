@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react"
 import type { PropsWithChildren } from "react"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 import { createBrowserClient } from "@src/lib/supabase/client"
 import {
@@ -16,8 +15,6 @@ const AppInitProvider = ({ children }: PropsWithChildren) => {
   const [isAppReady, setIsAppReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { setUserData } = useUserStore()
-
-  const queryClient = new QueryClient()
 
   const initDataState = useSignal(_initDataState)
   const initDataRaw = useSignal(_initDataRaw)
@@ -85,9 +82,7 @@ const AppInitProvider = ({ children }: PropsWithChildren) => {
   if (error) return <div>{error}</div>
   if (!isAppReady) return <div>Loading...</div>
 
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
+  return <>{children}</>
 }
 
 export default AppInitProvider

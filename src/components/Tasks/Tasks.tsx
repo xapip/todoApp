@@ -82,8 +82,12 @@ export default function Tasks() {
 
   // Zustand stores
   const { selectedItem } = useTaskListsStore()
-  const { initialFormValues, isOpenFormDrawer, setIsOpenFormDrawer } =
-    useTasksStore()
+  const {
+    initialFormValues,
+    setInitialFormValues,
+    isOpenFormDrawer,
+    setIsOpenFormDrawer,
+  } = useTasksStore()
   const { selectedDate, setSelectedDate } = useCalendarStore()
 
   // Сортировка задач по выбранному taskList
@@ -309,7 +313,13 @@ export default function Tasks() {
         </li>
         <li>
           <DrawerTrigger asChild>
-            <Button size={"icon"} onClick={() => setIsOpenFormDrawer(true)}>
+            <Button
+              size={"icon"}
+              onClick={() => {
+                setIsOpenFormDrawer(true)
+                setInitialFormValues(null)
+              }}
+            >
               +
             </Button>
           </DrawerTrigger>

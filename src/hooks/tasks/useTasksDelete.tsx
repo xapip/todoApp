@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query"
 import { AutoReplaceRelation } from "@src/lib/supabase/helpers.types"
 import { useTasksStore } from "@src/context/tasksStore"
+import { tqKey } from "@src/lib/tanstackQuery/helpers"
 
 type TaskWithRelation = AutoReplaceRelation<"tasks", "list_id">
 
@@ -9,10 +10,10 @@ const useTasksDelete = () => {
   return useMutation({
     mutationFn: ({ id }: { id: string }) => tasksModel.delete(id),
     onMutate: async (variables, context) => {
-      await context.client.cancelQueries({ queryKey: ["tasks"] })
+      await context.client.cancelQueries({ queryKey: tqKey.tasks })
       const previuosData: TaskWithRelation[] | undefined =
-        context.client.getQueryData(["tasks"])
-      context.client.setQueryData(["tasks"], (old: TaskWithRelation[]) => {
+        context.client.getQueryData(tqKey.tasks)
+      context.client.setQueryData(tqKey.tasks, (old: TaskWithRelation[]) => {
         return old.filter((item) => {
           return item.id !== variables.id
         })
@@ -20,10 +21,10 @@ const useTasksDelete = () => {
       return { previuosData }
     },
     onError(error, variables, onMutateResult, context) {
-      context.client.setQueryData(["tasks"], onMutateResult?.previuosData)
+      context.client.setQueryData(tqKey.tasks, onMutateResult?.previuosData)
     },
     onSettled(data, error, variables, onMutateResult, context) {
-      context.client.invalidateQueries({ queryKey: ["tasks"] })
+      context.client.invalidateQueries({ queryKey: tqKey.tasks })
     },
   })
 }

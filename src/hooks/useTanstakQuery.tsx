@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query"
 import { useTasksStore } from "@src/context/tasksStore"
 import { AutoReplaceRelation } from "@src/lib/supabase/helpers.types"
+import { tqKey } from "@src/lib/tanstackQuery/helpers"
 
 type TaskWithRelation = AutoReplaceRelation<"tasks", "list_id">
 
 const useTanstaсkQuery = () => {
   const { tasksModel } = useTasksStore()
   return useQuery({
-    queryKey: ["tasks"],
+    queryKey: tqKey.tasks,
     queryFn: async () =>
       (await tasksModel.getAll({
         select: "*, list_id (id, list_name, list_color)",

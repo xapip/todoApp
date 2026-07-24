@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 
 import { TelegramSDKInitProvider } from "@src/context/telegramContext/TelegramSdkInitProvider"
 import AppInitProvider from "@src/context/AppInitProvider"
+import TqClientProvider from "@src/context/TqClientProvider"
 
 import "./globals.css"
 import { cn } from "@src/lib/utils"
@@ -36,7 +37,9 @@ export default function RootLayout({
         )}
       >
         <TelegramSDKInitProvider>
-          <AppInitProvider>{children}</AppInitProvider>
+          <AppInitProvider>
+            <TqClientProvider>{children}</TqClientProvider>
+          </AppInitProvider>
         </TelegramSDKInitProvider>
       </body>
     </html>
