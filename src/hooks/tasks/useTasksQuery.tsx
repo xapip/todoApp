@@ -5,7 +5,7 @@ import { tqKey } from "@src/lib/tanstackQuery/helpers"
 
 type TaskWithRelation = AutoReplaceRelation<"tasks", "list_id">
 
-const useTanstaсkQuery = () => {
+const useTasksQuery = () => {
   const { tasksModel } = useTasksStore()
   return useQuery({
     queryKey: tqKey.tasks,
@@ -20,4 +20,4 @@ const useTanstaсkQuery = () => {
   })
 }
 
-export default useTanstaсkQuery
+export default useTasksQuery

@@ -18,6 +18,8 @@ import { DrawerTrigger } from "@src/components/ui/shadcn/drawer"
 import { useTaskListsStore } from "@src/context/taskListsStore"
 import { createBrowserClient } from "@src/lib/supabase/client"
 import { TablesRow } from "@src/lib/supabase/helpers.types"
+import useTaskListsDelete from "@src/hooks/taskLists/useTaskListsDelete"
+import { cn } from "@src/lib/utils"
 
 export default function TaskListItem({
   taskList,
@@ -25,9 +27,9 @@ export default function TaskListItem({
   taskList: TablesRow<"task_lists">
 }) {
   const [isOpenDeleteAlarm, setOpenDeleteAlarm] = useState(false)
-  const { setEditableItem, taskListsModel, setSelectedItem } =
-    useTaskListsStore()
+  const { setEditableItem, setSelectedItem, selectedItem } = useTaskListsStore()
   const telegramData = useSignal(_initDataState)
+  const deleteList = useTaskListsDelete()
 
   const shareList = async (taskList: TablesRow<"task_lists">) => {
     const token = crypto.randomUUID()
@@ -48,7 +50,13 @@ export default function TaskListItem({
   }
 
   return (
-    <li className="bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 relative overflow-hidden rounded-md border px-2 shadow-xs">
+    <li
+      className={cn(
+        "bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 relative overflow-hidden rounded-md border px-2 shadow-xs transition-all duration-300",
+        selectedItem?.id === taskList.id &&
+          "border-accent-foreground/60 shadow-accent-foreground"
+      )}
+    >
       <div className="flex items-center gap-1.5">
         <Button
           variant={"ghost"}
@@ -67,7 +75,7 @@ export default function TaskListItem({
               <Share2 />
               Поделиться
             </DropdownMenuItem>
-            <DrawerTrigger>
+            <DrawerTrigger className="w-full">
               <DropdownMenuItem onSelect={() => setEditableItem(taskList)}>
                 <Pencil />
                 Изменить
@@ -91,7 +99,7 @@ export default function TaskListItem({
         }
       />
       <DeleteButton
-        onDelete={() => taskListsModel.delete(taskList.id)}
+        onDelete={() => deleteList.mutate({ id: taskList.id })}
         isOpen={isOpenDeleteAlarm}
         onOpenChange={setOpenDeleteAlarm}
       />

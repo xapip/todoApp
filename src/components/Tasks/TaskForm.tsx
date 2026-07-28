@@ -32,11 +32,11 @@ import {
   CommandList,
 } from "@src/components/ui/shadcn/command"
 import { Textarea } from "@src/components/ui/shadcn/textarea"
-import { useTaskListsStore } from "@src/context/taskListsStore"
 import { DateTimePickerInput } from "../ui/DatePickerInput"
 import useTasksCreate from "@src/hooks/tasks/useTasksCreate"
 import { useTasksStore } from "@src/context/tasksStore"
 import useTasksUpdate from "@src/hooks/tasks/useTasksUpdate"
+import useTaskListsQuery from "@src/hooks/taskLists/useTaskListsQuery"
 
 const formSchema = z.object({
   title: z.string().min(1, "Это поле не может быть пустым"),
@@ -57,7 +57,7 @@ export function TaskForm() {
       due_date: initialFormValues?.due_date ?? "",
     },
   })
-  const { taskLists } = useTaskListsStore()
+  const { data: taskLists } = useTaskListsQuery()
   const createTask = useTasksCreate()
   const updateTask = useTasksUpdate()
 
@@ -144,7 +144,8 @@ export function TaskForm() {
                         aria-expanded={open}
                       >
                         {field.value
-                          ? taskLists.find(
+                          ? taskLists &&
+                            taskLists.find(
                               (taskList) => taskList.id === field.value
                             )?.list_name
                           : "Выберите список"}
@@ -161,28 +162,31 @@ export function TaskForm() {
                       <CommandList>
                         <CommandEmpty>Такого списка нет.</CommandEmpty>
                         <CommandGroup>
-                          {taskLists.map((taskList) => (
-                            <CommandItem
-                              value={taskList.list_name}
-                              key={taskList.id}
-                              onSelect={() => {
-                                field.onChange(
-                                  field.value === taskList.id ? 0 : taskList.id
-                                )
-                                setOpen(false)
-                              }}
-                            >
-                              {taskList.list_name}
-                              <Check
-                                className={cn(
-                                  "ml-auto",
-                                  field.value === taskList.id
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                            </CommandItem>
-                          ))}
+                          {taskLists &&
+                            taskLists.map((taskList) => (
+                              <CommandItem
+                                value={taskList.list_name}
+                                key={taskList.id}
+                                onSelect={() => {
+                                  field.onChange(
+                                    field.value === taskList.id
+                                      ? 0
+                                      : taskList.id
+                                  )
+                                  setOpen(false)
+                                }}
+                              >
+                                {taskList.list_name}
+                                <Check
+                                  className={cn(
+                                    "ml-auto",
+                                    field.value === taskList.id
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
                         </CommandGroup>
                       </CommandList>
                     </Command>

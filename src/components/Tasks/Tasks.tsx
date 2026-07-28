@@ -19,7 +19,7 @@ import { useTaskListsStore } from "@src/context/taskListsStore"
 import { format, isToday, isTomorrow, isYesterday } from "date-fns"
 import { ru } from "date-fns/locale"
 import { useCalendarStore } from "@src/context/calendarStore"
-import useTanstaсkQuery from "@src/hooks/useTanstakQuery"
+import useTasksQuery from "@src/hooks/tasks/useTasksQuery"
 import { useTasksStore } from "@src/context/tasksStore"
 
 type TaskWithRelation = AutoReplaceRelation<"tasks", "list_id">
@@ -78,7 +78,7 @@ export default function Tasks() {
   )
 
   // TQ
-  const { data: tasks } = useTanstaсkQuery()
+  const { data: tasks } = useTasksQuery()
 
   // Zustand stores
   const { selectedItem } = useTaskListsStore()

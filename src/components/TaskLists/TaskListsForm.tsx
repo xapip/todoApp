@@ -18,41 +18,39 @@ import {
 import { Input } from "@src/components/ui/shadcn/input"
 import { useTaskListsStore } from "@src/context/taskListsStore"
 import Circle from "@uiw/react-color-circle"
-import { useUserStore } from "@src/context/userStore"
-
-interface TaskListsFormProps {
-  closeDrawer: () => void
-}
+import useTaskListsCreate from "@src/hooks/taskLists/useTaskListsCreate"
+import useTaskListsUpdate from "@src/hooks/taskLists/useTaskListsUpdate"
 
 const formSchema = z.object({
   list_name: z.string().min(1, "Это поле не может быть пустым"),
   list_color: z.string().nullable(),
 })
 
-export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
-  const [loading, setLoading] = useState(false)
-  const { editableItem, taskListsModel } = useTaskListsStore()
-  const [hex, setHex] = useState("#F44E3B")
-  const { user } = useUserStore()
+export function TaskListsForm() {
+  const { editableItem, setIsOpenFormDrawer } = useTaskListsStore()
+  const createList = useTaskListsCreate()
+  const updateList = useTaskListsUpdate()
+  const [hex, setHex] = useState(editableItem?.list_color ?? "")
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { ...editableItem },
+    defaultValues: {
+      ...editableItem,
+      list_name: editableItem?.list_name ?? "",
+    },
     mode: "onChange",
   })
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setLoading(true)
-
     try {
-      if (taskListsModel) {
-        if (editableItem) {
-          taskListsModel.update(editableItem.id, { ...values })
-        } else {
-          taskListsModel.create({
-            ...values,
-            user_id: user?.id,
-          })
-        }
+      if (editableItem) {
+        updateList.mutate({
+          id: editableItem.id,
+          payload: { ...editableItem, ...values },
+        })
+      } else {
+        createList.mutate({
+          payload: values,
+        })
       }
       form.reset()
     } catch (error) {
@@ -63,8 +61,6 @@ export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
           message: error.message,
         })
       }
-    } finally {
-      setLoading(false)
     }
   }
   return (
@@ -143,10 +139,9 @@ export function TaskListsForm({ closeDrawer }: TaskListsFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit" onClick={closeDrawer}>
+        <Button type="submit" onClick={() => setIsOpenFormDrawer(false)}>
           {!!editableItem ? "Обновить" : "Добавить"}
         </Button>
-        {loading && <div className="absolute inset-0 blur-sm"></div>}
       </form>
     </Form>
   )

@@ -5,26 +5,28 @@ import { tqKey } from "@src/lib/tanstackQuery/helpers"
 
 type TaskWithRelation = AutoReplaceRelation<"tasks", "list_id">
 
+const TASK_KEY = tqKey.tasks
+
 const useTasksDelete = () => {
   const { tasksModel } = useTasksStore()
   return useMutation({
     mutationFn: ({ id }: { id: string }) => tasksModel.delete(id),
     onMutate: async (variables, context) => {
-      await context.client.cancelQueries({ queryKey: tqKey.tasks })
-      const previuosData: TaskWithRelation[] | undefined =
-        context.client.getQueryData(tqKey.tasks)
-      context.client.setQueryData(tqKey.tasks, (old: TaskWithRelation[]) => {
+      await context.client.cancelQueries({ queryKey: TASK_KEY })
+      const previousData: TaskWithRelation[] | undefined =
+        context.client.getQueryData(TASK_KEY)
+      context.client.setQueryData(TASK_KEY, (old: TaskWithRelation[]) => {
         return old.filter((item) => {
           return item.id !== variables.id
         })
       })
-      return { previuosData }
+      return { previousData }
     },
     onError(error, variables, onMutateResult, context) {
-      context.client.setQueryData(tqKey.tasks, onMutateResult?.previuosData)
+      context.client.setQueryData(TASK_KEY, onMutateResult?.previousData)
     },
     onSettled(data, error, variables, onMutateResult, context) {
-      context.client.invalidateQueries({ queryKey: tqKey.tasks })
+      context.client.invalidateQueries({ queryKey: TASK_KEY })
     },
   })
 }

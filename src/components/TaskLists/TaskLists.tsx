@@ -11,62 +11,58 @@ import {
 import { TaskListsForm } from "@src/components/TaskLists/TaskListsForm"
 import TaskListItem from "./TaskListItem"
 import { useTaskListsStore } from "@src/context/taskListsStore"
-import { useEffect, useState } from "react"
+import useTaskListsQuery from "@src/hooks/taskLists/useTaskListsQuery"
+import { cn } from "@src/lib/utils"
 
 export default function TaskLists() {
-  const [openDrawer, setOpenDrawer] = useState(false)
   const {
-    setEditableItem,
     editableItem,
-    taskLists,
-    isLoading,
-    getTaskLists,
-    subscribeToChanges,
+    setEditableItem,
+    selectedItem,
     setSelectedItem,
+    isOpenFormDrawer,
+    setIsOpenFormDrawer,
   } = useTaskListsStore()
 
   const handleAddNewTaskList = () => {
     setEditableItem(undefined)
   }
 
-  useEffect(() => {
-    getTaskLists()
-  }, [getTaskLists])
-
-  useEffect(() => {
-    const unsubscribe = subscribeToChanges()
-    return () => {
-      unsubscribe()
-    }
-  }, [subscribeToChanges])
+  const { data: taskLists, isLoading } = useTaskListsQuery()
 
   return (
     <Drawer
-      open={openDrawer}
-      onOpenChange={setOpenDrawer}
+      open={isOpenFormDrawer}
+      onOpenChange={setIsOpenFormDrawer}
       repositionInputs={false}
     >
       <div className="relative z-10">
-        <div className="flex items-center justify-between gap-2 overflow-x-auto">
-          <ul className="flex items-center gap-1.5 px-0.5 py-1">
-            {taskLists && taskLists.length > 0 && (
-              <>
-                <li>
-                  <Button
-                    variant={"outline"}
-                    size={"sm"}
-                    className="relative overflow-hidden whitespace-nowrap"
-                    onClick={() => setSelectedItem(undefined)}
-                  >
-                    Все
-                  </Button>
-                </li>
-                {taskLists?.map((item) => (
-                  <TaskListItem key={item.id} taskList={item} />
-                ))}
-              </>
-            )}
-          </ul>
+        <div className="flex items-center justify-between gap-0.5">
+          <div className="flex items-center gap-2 overflow-x-auto pr-2">
+            <ul className="flex items-center gap-1.5 px-0.5 py-1">
+              {taskLists && taskLists.length > 0 && (
+                <>
+                  <li>
+                    <Button
+                      variant={"outline"}
+                      size={"sm"}
+                      className={cn(
+                        "relative overflow-hidden whitespace-nowrap",
+                        !selectedItem &&
+                          "border-accent-foreground/60 shadow-accent-foreground"
+                      )}
+                      onClick={() => setSelectedItem(undefined)}
+                    >
+                      Все
+                    </Button>
+                  </li>
+                  {taskLists?.map((item) => (
+                    <TaskListItem key={item.id} taskList={item} />
+                  ))}
+                </>
+              )}
+            </ul>
+          </div>
           <DrawerTrigger asChild>
             <Button
               variant={"outline"}
@@ -91,7 +87,7 @@ export default function TaskLists() {
               {!!editableItem ? "Изменить список" : "Добавить список"}
             </DrawerTitle>
           </DrawerHeader>
-          <TaskListsForm closeDrawer={() => setOpenDrawer(false)} />
+          <TaskListsForm />
           <DrawerFooter>
             <DrawerClose>Закрыть</DrawerClose>
           </DrawerFooter>
